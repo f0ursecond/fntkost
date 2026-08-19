@@ -19,3 +19,22 @@ Route::middleware('auth')->group(function () {
     Route::resource('tenants', TenantController::class)->only(['index', 'store', 'update', 'destroy']);
     Route::post('tenants/{tenant}/pay', [TenantController::class, 'pay'])->name('tenants.pay');
 });
+
+Route::get('/run-scheduler', function (Illuminate\Http\Request $request) {
+    $authHeader = $request->header('Authorization');
+    $cronSecret = env('CRON_SECRET');
+
+    // Pastikan request datang dari Vercel (memiliki CRON_SECRET yang cocok)
+    if ($cronSecret && $authHeader !== "Bearer " . $cronSecret) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
+
+    // Menjalankan scheduler Laravel
+    Illuminate\Support\Facades\Artisan::call('schedule:run');
+
+    return response()->json([
+        'message' => 'Scheduler ran successfully',
+        'output' => Illuminate\Support\Facades\Artisan::output()
+    ]);
+});
+

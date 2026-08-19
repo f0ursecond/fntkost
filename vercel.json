@@ -1,5 +1,11 @@
 {
   "version": 2,
+  "crons": [
+    {
+      "path": "/run-scheduler",
+      "schedule": "0 0 * * *"
+    }
+  ],
   "functions": {
     "api/index.php": {
       "runtime": "vercel-php@0.7.2"
